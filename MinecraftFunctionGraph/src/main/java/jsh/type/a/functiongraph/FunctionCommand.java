@@ -35,34 +35,40 @@ public class FunctionCommand implements CommandExecutor
 				// 배열의 크기를 확인함으로 오류를 막음
 				if(args.length < 2)
 				{
-					sender.sendMessage("Please write a function");
+					sender.sendMessage(FunctionGraph.function);
 					return false;
 				}
 
 				// 문자열을 연결하기 위해 StringBuilder 사용
-				StringBuilder sb = new StringBuilder();
+				StringBuilder sb = new StringBuilder("(");
 				for(int i = 1; i < args.length; i++)
 				{
+					sb.append(' ');
 					sb.append(args[i]);
 				}
-
-				core.setFunction(sb.toString());
-
-				break;
+				sb.append(" )");
+				FunctionGraph.function = sb.toString();
+				return false;
 			case "show":
-
 				if(!(sender instanceof Player))
 				{
 					return false;
 				}
+				if(args.length < 2)
+				{
+					sender.sendMessage("Please write down size of graph");
+					return false;
+				}
+				double size;
+				try {
+					size = Double.parseDouble(args[1]);
+				} catch (Exception e) {
+					sender.sendMessage("Please write down size of graph");
+					return false;
+				}
 
-				// 인스턴스 형식의 타입을 사용해야 함으로 Interger / Character 사용
-				Stack<Integer> number;
-				Stack<Character> operatorType;
-				Location loc = ((Player) sender).getLocation();
-
-
-				break;
+				FunctionGraph.showFunction((Player)sender, size);
+				return false;
 		}
 
 		return false;

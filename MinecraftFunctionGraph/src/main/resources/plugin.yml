@@ -1,4 +1,6 @@
 name: FunctionGraph
 version: @version@
 main: jsh.type.a.functiongraph.FunctionGraph
-api-version: 1.16
+api-version: 1.8.9
+commands:
+  function:
