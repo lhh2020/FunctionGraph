@@ -35,6 +35,7 @@ public final class FunctionGraph extends JavaPlugin implements Listener
 
 		operatorPrecedence.put('(', (byte) 4);
 		operatorPrecedence.put(')', (byte) 4);
+		operatorPrecedence.put('|', (byte) 4);
 	}
 
 	@Override
@@ -92,6 +93,7 @@ public final class FunctionGraph extends JavaPlugin implements Listener
 	{
 		Stack<Double> numbers = new Stack<>();
 		Stack<Character> operatorType = new Stack<>();
+		boolean abs = false;
 
 		for(int i = 0; i < formula.length; i++)
 		{
@@ -116,6 +118,16 @@ public final class FunctionGraph extends JavaPlugin implements Listener
 				{
 					calculate_(numbers, operatorType);
 					continue;
+				}
+				if(formula[i].charAt(0) == '|')
+				{
+					if(abs)
+					{
+						calculate_(numbers, operatorType);
+						abs = false;
+						continue;
+					}
+					abs = true;
 				}
 				byte n = isOperator(operatorType.peek());
 				if(n > oper)
@@ -148,7 +160,10 @@ public final class FunctionGraph extends JavaPlugin implements Listener
 			{
 				case '(':
 					numbers.push(num_1);
-					numbers.push(num_2);
+					return;
+				case '|':
+					numbers.push(num_1);
+					numbers.push(Math.abs(num_2));
 					return;
 				case '+':
 					numbers.push(num_1 + num_2);
@@ -195,6 +210,12 @@ public final class FunctionGraph extends JavaPlugin implements Listener
 	}
 	private static Double isNumber(String str)
 	{
+		int index = str.indexOf("--");
+		if(index != -1)
+		{
+			StringBuffer sb = new StringBuffer(str);
+			str = sb.substring(index+2, sb.length());
+		}
 		Double num;
 		try {
 			num = Double.parseDouble(str);
