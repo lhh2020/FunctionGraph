@@ -20,11 +20,13 @@ public final class FunctionGraph extends JavaPlugin implements Listener
 	public static String function = "( x )";
 	private static HashMap<Character, Byte> operatorPrecedence = new HashMap<>();
 
+	// 플러그인이 시작될때 실행되는 메소드
 	@Override
 	public void onEnable()
 	{
 		getCommand("function").setExecutor(new FunctionCommand(this));
 
+		// 우선순위를 map 에 저장한다
 		operatorPrecedence.put('+', (byte) 1);
 		operatorPrecedence.put('-', (byte) 1);
 
@@ -44,20 +46,25 @@ public final class FunctionGraph extends JavaPlugin implements Listener
 
 	}
 
+	// 플레이어 좌표에 x측 y축을 출력하고 문자열 function 의 x를 숫자로 바꾸어 calculate 함수를 실행시켜 계산하고 플레이어 위치 + 계산값 위치에 출력
 	public static void showFunction(Player player, double size)
 	{
 		PlayerConnection connection = ((CraftPlayer)player).getHandle().playerConnection;
 		size = Math.abs(size);
 		for(double i = -size; i < size;i += 0.1)
 		{
+			// 플레이어 위치를 가져와
 			Location loc = player.getLocation();
+			// 플레이어 파티클을 띄움
 			PacketPlayOutWorldParticles particles = new PacketPlayOutWorldParticles(EnumParticle.FLAME, true, (float)(loc.getX() + i), (float)loc.getY(), (float)(loc.getBlockZ() - 0.2),
 					(float)0, (float)0, (float)0, 0, 1);
 			connection.sendPacket(particles);
 		}
 		for(double i = -size; i < size;i += 0.1)
 		{
+			// 플레이어 위치를 가져와
 			Location loc = player.getLocation();
+			// 플레이어 파티클을 띄움
 			PacketPlayOutWorldParticles particles = new PacketPlayOutWorldParticles(EnumParticle.FLAME, true, (float)loc.getX(), (float)(loc.getY() + i), (float)(loc.getBlockZ() - 0.2),
 					(float)0, (float)0, (float)0, 0, 1);
 			connection.sendPacket(particles);
@@ -66,7 +73,9 @@ public final class FunctionGraph extends JavaPlugin implements Listener
 		{
 			Location loc = player.getLocation();
 			{
+				// 'x' 로 쪼개
 				String[] str = function.split("x");
+				// StringBuffer 로 중간에 값을 넣어 합쳐준다
 				StringBuffer sb = new StringBuffer();
 				sb.append(str.length > 0 ? str[0] : "");
 				for(int j = 1; j < str.length; j++)
@@ -85,6 +94,8 @@ public final class FunctionGraph extends JavaPlugin implements Listener
 			}
 		}
 	}
+
+	// 문자열로 주어진 수식을 계산하는 역할
 	private static Double calculate(String formula)
 	{
 		return calculate(formula.split(" "));
@@ -143,13 +154,22 @@ public final class FunctionGraph extends JavaPlugin implements Listener
 
 		return numbers.pop();
 	}
+
+	// stack에 들어가 있는 값들을 순차적으로 계산함함
 	private static void calculate_(Stack<Double> numbers, Stack<Character> operatorType)
 	{
+		// numbers 가 null 인 경우 isEmpty 를 실행시킬 수 없음으로 null 체크를 먼저 함
+		if(numbers == null || numbers.isEmpty())
+		{
+			return;
+		}
 		while(true)
 		{
+			// 2개의 값을 빼서
 			Double num_2 = numbers.pop();
 			if(numbers.isEmpty())
 			{
+				// 값이 하나밖에 없으면 루프를 탈출함
 				numbers.push(num_2);
 				break;
 			}
@@ -158,8 +178,10 @@ public final class FunctionGraph extends JavaPlugin implements Listener
 			char operator = operatorType.pop();
 			switch (operator)
 			{
+				// 두 값을 계산하고 값을 계산하여 하나의 값을 넣음
 				case '(':
 					numbers.push(num_1);
+					numbers.push(num_2);
 					return;
 				case '|':
 					numbers.push(num_1);
@@ -200,6 +222,7 @@ public final class FunctionGraph extends JavaPlugin implements Listener
 	}
 
 
+	// 연산자인지 확인하고 우선순위 반환
 	private static Byte isOperator(String str)
 	{
 		return isOperator(str.charAt(0));
@@ -208,6 +231,7 @@ public final class FunctionGraph extends JavaPlugin implements Listener
 	{
 		return operatorPrecedence.get(c);
 	}
+	// 숫자인지 확인하고 숫자 반환
 	private static Double isNumber(String str)
 	{
 		int index = str.indexOf("--");
